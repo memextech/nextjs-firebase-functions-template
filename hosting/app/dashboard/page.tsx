@@ -79,9 +79,9 @@ export default function DashboardPage() {
   };
 
   async function getProduct() {
-    const getProductFunction = httpsCallable(functions, 'getProduct');
+    const getProductFunction = httpsCallable<any, { data: Data }>(functions, 'getProduct');
     const result = await getProductFunction();
-    const { success, data } = result.data;
+    const { data } = result.data;
     console.log('Product data:', data);
     setData(data);
   };
