@@ -33,6 +33,8 @@ service cloud.firestore {
 
 ## 2.2 Functions
 - [ ] Enable Functions in Firebase Console
+- [ ] Install Functions dependencies: `cd functions && npm install`
+- [ ] Set up secrets for Functions: `firebase functions:secrets:set DEMO_SECRET_KEY`
 
 ## 3. Local Development
 - [ ] Start the development server: `cd hosting && npm run dev`
