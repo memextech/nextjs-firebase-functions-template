@@ -7,6 +7,7 @@ Follow these steps to set up your Firebase Next.js project from this template:
 - [ ] Login to Firebase: `firebase login`
 - [ ] Enable web frameworks: `firebase experiments:enable webframeworks`
 - [ ] Create a Firebase project in the [Firebase Console](https://console.firebase.google.com/)
+- [ ] Switch to Blaze plan to enable advanced features
 - [ ] Register a web app in your Firebase project
 - [ ] Enable Google Authentication in Firebase Console
 
@@ -18,7 +19,7 @@ Follow these steps to set up your Firebase Next.js project from this template:
 
 ## 2.1 Firestore
 - [ ] Enable Firestore in Firebase Console with production setup
-- [ ] Update the Rules to allow only authenticated traffic
+- [ ] Update the Rules to allow only authenticated traffic by running `firebase deploy --only firestore:rules`. Rules are defined in `firestore.rules` 
 ```
 rules_version = '2';
 
@@ -33,6 +34,7 @@ service cloud.firestore {
 
 ## 2.2 Functions
 - [ ] Enable Functions in Firebase Console
+- [ ] Open new terminal window when user can interactively set secrets using this command `firebase functions:secrets:set YOUR_SECRET_KEY`
 
 ## 3. Local Development
 - [ ] Start the development server: `cd hosting && npm run dev`
