@@ -34,7 +34,9 @@ service cloud.firestore {
 
 ## 2.2 Functions
 - [ ] Enable Functions in Firebase Console
-- [ ] Open new terminal window when user can interactively set secrets using this command `firebase functions:secrets:set YOUR_SECRET_KEY`
+- [ ] Install Functions dependencies: `cd functions && npm install`
+- [ ] Set up secrets for Functions: `firebase functions:secrets:set DEMO_SECRET_KEY` using interactive terminal
+
 
 ## 3. Local Development
 - [ ] Start the development server: `cd hosting && npm run dev`

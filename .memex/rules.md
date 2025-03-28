@@ -12,7 +12,8 @@ Setting up this template involves the following steps (estimated time: 5-10 minu
 - 🌐 **Web App Registration** - Register your app with Firebase
 - 🔐 **Authentication Setup** - Enable Google sign-in
 - ⚙️ **Local Configuration** - Set up environment variables
-- 🚀 **Deployment** - Deploy to Firebase Hosting
+- 🧩 **Functions Setup** - Configure Firebase Functions and secrets
+- 🚀 **Deployment** - Deploy to Firebase Hosting and Functions
 
 The `setup_checklist.md` file tracks your progress through these steps. As you complete each task, update the checklist with checkmarks. Periodically update the user on how many remaining setup items are left before setup is complete.
 
@@ -22,6 +23,7 @@ The `setup_checklist.md` file tracks your progress through these steps. As you c
 - `hosting/app/firebase.ts` - Firebase initialization
 - `hosting/app/components/AdminProtected.tsx` - Auth protection component
 - `hosting/app/context/AuthContext.tsx` - Authentication context provider
+- `functions/src/index.ts` - Firebase Cloud Functions implementation
 - `.firebaserc` - Firebase project configuration (update with your project ID)
 - `firebase.json` - Firebase services configuration
 - `setup_checklist.md` - Step-by-step setup instructions
@@ -61,8 +63,35 @@ The `setup_checklist.md` file tracks your progress through these steps. As you c
 ## Authentication
 The template includes Google Authentication. The AdminProtected component is configured to bypass admin checks in development mode.
 
+## Firebase Functions Setup
+
+### Setting Up Firebase Functions
+1. Direct the user to navigate to "Functions" in the left sidebar of the Firebase Console
+2. Instruct the user to click "Get started" and follow the prompts
+3. Guide the user to select a location for their functions
+
+### Configuring Secrets for Firebase Functions
+1. Instruct the user to set up secrets for their functions:
+   ```
+   firebase functions:secrets:set DEMO_SECRET_KEY
+   ```
+2. Explain that they will be prompted to enter the secret value
+3. Inform the user that secrets can be accessed in functions using the `defineSecret` method
+4. Remind the user that secrets must be explicitly included in the function configuration
+
 ## Deployment
-Deploy to Firebase Hosting using preview channels for testing and the main channel for production.
+Deploy to Firebase Hosting and Functions using preview channels for testing and the main channel for production.
+
+```bash
+# Deploy everything
+firebase deploy
+
+# Deploy only hosting
+firebase deploy --only hosting
+
+# Deploy only functions
+firebase deploy --only functions
+```
 
 ## Firebase CLI Authentication in Non-Interactive Environments
 
