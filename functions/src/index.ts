@@ -24,6 +24,7 @@ import * as logger from "firebase-functions/logger";
 import {HttpsError, CallableRequest} from "firebase-functions/v2/https";
 import {defineSecret} from "firebase-functions/params";
 import {initializeApp} from "firebase-admin/app";
+import {v4 as uuidv4} from "uuid";
 
 // Define secrets
 const demoSecretKey = defineSecret("DEMO_SECRET_KEY");
@@ -31,44 +32,53 @@ const demoSecretKey = defineSecret("DEMO_SECRET_KEY");
 // Initialize Firebase App
 initializeApp();
 
-export const getProduct = functions.https.onCall(
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  createdBy: string;
+  createdAt: Date;
+}
+
+interface CreateProductRequest {
+  name: string;
+  price: number;
+}
+
+export const createProduct = functions.https.onCall(
   {secrets: [demoSecretKey]},
-  async (request: CallableRequest<void>) => {
+  async (request: CallableRequest<CreateProductRequest>) => {
     if (!request.auth) {
-      throw new HttpsError(
-        "unauthenticated",
-        "Only authenticated users can call this function."
-      );
+      throw new HttpsError("unauthenticated", "Only authenticated users can call this function.");
     }
 
-    const userId = request.auth.uid;
     const userEmail = request.auth.token.email;
-    const secretKey = demoSecretKey.value();
 
-    console.log("userId", userId);
-    console.log("userEmail", userEmail);
-    console.log("demoSecretKey", demoSecretKey.value());
+    const {name, price} = request.data;
+
+    const product: Product = {
+      id: uuidv4(),
+      name: name,
+      price: price,
+      createdBy: userEmail || "unknown",
+      createdAt: new Date(),
+    };
+
+    logger.info("creating product", product);
 
     try {
       const db = getFirestore();
-      const product = (await db.collection("products").doc("laptop").get()).data();
-
-      console.log("product.name", product?.name);
-      console.log("product.price", product?.price);
+      await db.collection("products").doc(name).set(product);
 
       return {
         success: true,
         data: {
-          userId: userId,
-          userEmail: userEmail,
-          secretKey: secretKey,
           product: product,
         },
       };
     } catch (error) {
-      logger.error("Failed to get product", error);
-      throw new HttpsError("internal", "Failed to get product");
+      logger.error("Failed to create product", error);
+      throw new HttpsError("internal", "Failed to create product");
     }
   }
 );
-

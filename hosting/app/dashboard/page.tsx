@@ -8,19 +8,20 @@ import { app } from '../firebase';
 import { AdminProtected } from '../components/AdminProtected';
 import Link from 'next/link';
 import { getFunctions, httpsCallable } from 'firebase/functions';
-import { getFirestore, collection, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, Timestamp } from 'firebase/firestore';
 
 interface Product {
+  id: string;
   name: string;
   price: number;
+  createdBy: string;
+  createdAt: Date;
 }
 
-interface Data {
-    userId: string;
-    userEmail: string;
-    secretKey: string;
-    product: Product;
-} 
+function firestoreTimestampToDate(timestamp: Timestamp | undefined): Date | undefined {
+  if (!timestamp) return undefined;
+  return new Date(timestamp?.seconds * 1000);
+}
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -29,7 +30,9 @@ export default function DashboardPage() {
   const functions = getFunctions(app);
 
   const [data, setData] = useState<Data | null>(null);
-  const [products, setProducts] = useState<Product[]>([]);  
+  const [products, setProducts] = useState<Product[]>([]);
+  const [productName, setProductName] = useState('');
+  const [productPrice, setProductPrice] = useState('');
 
   useEffect(() => {
     fetchProducts();
@@ -51,6 +54,16 @@ export default function DashboardPage() {
     }
   };
 
+  const handleCreateProduct = async (productName: string, productPrice: number) => {
+    console.log('Product name:', productName);
+    console.log('Product price:', productPrice);
+    const createProductFunction = httpsCallable<any, { data: Product }>(functions, 'createProduct');
+    const result = await createProductFunction({name: productName, price: productPrice});
+    const { data } = result.data;
+    console.log('Product data:', data);
+    fetchProducts();
+  };
+
   //directly from firebase
   const fetchProducts = async () => {    
     try {
@@ -62,10 +75,13 @@ export default function DashboardPage() {
         
         const fetchedProduct: Product[] = [];
         querySnapshot.forEach((doc) => {
-          const productData = doc.data();
+          const productData = doc.data() as Product;
           fetchedProduct.push({
+            id: productData.id,
             name: productData.name,
             price: productData.price,
+            createdBy: productData.createdBy,
+            createdAt: productData.createdAt,
           });
         });
         
@@ -76,14 +92,6 @@ export default function DashboardPage() {
     } catch (err) {
       console.error('Error fetching products:', err);
     }
-  };
-
-  async function getProduct() {
-    const getProductFunction = httpsCallable<any, { data: Data }>(functions, 'getProduct');
-    const result = await getProductFunction();
-    const { data } = result.data;
-    console.log('Product data:', data);
-    setData(data);
   };
 
   if (!user) {
@@ -158,6 +166,63 @@ export default function DashboardPage() {
           </div>
         </main>
 
+        {/* Create Product Form */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Create New Product</h2>
+          <div className="bg-white shadow overflow-hidden rounded-lg">
+            <div className="px-6 py-4">
+              <form className="space-y-4">
+                <div className="grid grid-cols-4 gap-4">
+                  <div className="col-span-2">
+                    <label htmlFor="productName" className="block text-sm font-medium text-gray-700">
+                      Product Name
+                    </label>
+                    <input
+                      onChange={(e) => setProductName(e.target.value)}
+                      type="text"
+                      name="productName"
+                      id="productName"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                      placeholder="Enter product name"
+                    />
+                  </div>
+
+                  <div className="col-span-2">
+                    <label htmlFor="productPrice" className="block text-sm font-medium text-gray-700">
+                      Price
+                    </label>
+                    <div className="mt-1 relative rounded-md shadow-sm">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <span className="text-gray-500 sm:text-sm">$</span>
+                      </div>
+                      <input
+                        onChange={(e) => setProductPrice(e.target.value)}
+                        type="number"
+                        name="productPrice"
+                        id="productPrice"
+                        className="pl-7 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        placeholder="0.00"
+                        step="0.01"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <button                  
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleCreateProduct(productName, Number(productPrice));
+                  }}
+                  type="button"
+                  className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                >
+                  Create Product
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+
         {/* Products List */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Products</h2>
@@ -175,40 +240,24 @@ export default function DashboardPage() {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {products.map((product) => (
-                  <tr key={product.name}>
+                  <tr key={product.id}>                    
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       {product.name}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       ${product.price.toFixed(2)}
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {product.createdBy}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {firestoreTimestampToDate(product.createdAt as any)?.toLocaleString()}
+                    </td> 
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-        </div>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
-          <button
-            onClick={getProduct}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
-          >
-            Call Function
-          </button>
-
-          {/* Single Product Display */}
-          {data && (
-            <div className="mt-4 bg-white shadow overflow-hidden rounded-lg">
-              <div className="px-6 py-4">
-                <h3 className="text-lg font-medium text-gray-900">User ID: {data.userId}</h3>
-                <h3 className="text-lg font-medium text-gray-900">User Email: {data.userEmail}</h3>
-                <h3 className="text-lg font-medium text-gray-900">Secret Key: {data.secretKey}</h3>
-                <h3 className="text-lg font-medium text-gray-900">{data.product.name}</h3>
-                <p className="mt-1 text-sm text-gray-500">${data.product.price.toFixed(2)}</p>
-              </div>
-            </div>
-          )}
         </div>
       </div>
       
