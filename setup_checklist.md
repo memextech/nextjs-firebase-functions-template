@@ -20,17 +20,6 @@ Follow these steps to set up your Firebase Next.js project from this template:
 ## 2.1 Firestore
 - [ ] Enable Firestore in Firebase Console with production setup
 - [ ] Update the Rules to allow only authenticated traffic by running `firebase deploy --only firestore:rules`. Rules are defined in `firestore.rules` 
-```
-rules_version = '2';
-
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if request.auth != null;
-    }
-  }
-}
-```
 
 ## 2.2 Functions
 - [ ] Enable Functions in Firebase Console
