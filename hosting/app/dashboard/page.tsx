@@ -29,7 +29,6 @@ export default function DashboardPage() {
   const auth = getAuth(app);
   const functions = getFunctions(app);
 
-  const [data, setData] = useState<Data | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [productName, setProductName] = useState('');
   const [productPrice, setProductPrice] = useState('');
