@@ -40,15 +40,21 @@ Follow these steps to set up your Firebase Next.js project from this template:
 - [ ] Deploy to production: `firebase deploy --only hosting`
 - [ ] Add your hosting domain to authorized domains in Firebase Authentication
 
-## 5. Subscriptions with LemonSqueezy
-- [ ] Register with Lemon Squeezy and create standard subscription product
-- [ ] Create API key in Setting/API
-- [ ] Add subscription key to firebase secrets `firebase functions:secrets:set LEMON_SQUEEZY_API_KEY`
-- [ ] Setup LemonSqueezy Webhoook in Webhook/Settings 
-- [ ] Add signing key to firebase secrets `firebase functions:secrets:set LEMON_SQUEEZY_SIGNING_SECRET`
-- [ ] Add store id to firebase secrets `firebase functions:secrets:set LEMON_SQUEEZY_STORE_ID`
-- [ ] Add product variant id to firebase secrets `firebase functions:secrets:set LEMON_SQUEEZY_VARIANT_ID`
-- [ ] Add [official LemonSqueezy javascript SDK](https://github.com/lmsqueezy/lemonsqueezy.js/blob/main/README.md) to firebase functions `npm install @lemonsqueezy/lemonsqueezy.js`
+## 5. Setup Subscription with LemonSqueezy to see Newsletter page
+- [ ] Register new account with Lemon Squeezy if user doesn't have one
+- [ ] Create new Product with Pricing: Subscription, Pricing model: Standard pricing. Set price and subscription period and click Save.
+- [ ] Create `API key` in Settings/API
+- [ ] Setup Webhooks in Settings/Webhooks
+    - [ ] set `Signing secret`
+    - [ ] select `subscription_created` and `subscription_expired` events
+    - [ ] Callback URL will be set later when the firebase function `lemonSqueezyHandleWebhooks` is created
+- [ ] Set Lemon Squeezy secrets in Firebase
+    - [ ] Add `API key` created above to firebase secrets `firebase functions:secrets:set LEMON_SQUEEZY_API_KEY`
+    - [ ] Add `Signing secret` created above to firebase secrets `firebase functions:secrets:set LEMON_SQUEEZY_SIGNING_SECRET`
+    - [ ] Add store id (you can find it in Settings/Stores) to firebase secrets `firebase functions:secrets:set LEMON_SQUEEZY_STORE_ID`
+    - [ ] Add product variant id (you can find it when clicking ... in Store/Products) to firebase secrets `firebase functions:secrets:set LEMON_SQUEEZY_VARIANT_ID`
+- [ ] Deploy functions to firebase `firebase deploy --only functions`
+- [ ] Set Webhooks Callback URL to the url of the `lemonSqueezyHandleWebhooks` function that can be found in firebase console
 
 ## 5. Local Development connecting to Firebase Cloud
 - [ ] Start the development server using interactive terminal: `cd hosting && npm run dev`
