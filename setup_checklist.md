@@ -40,6 +40,16 @@ Follow these steps to set up your Firebase Next.js project from this template:
 - [ ] Deploy to production: `firebase deploy --only hosting`
 - [ ] Add your hosting domain to authorized domains in Firebase Authentication
 
+## 5. Subscriptions with LemonSqueezy
+- [ ] Register with Lemon Squeezy and create standard subscription product
+- [ ] Create API key in Setting/API
+- [ ] Add subscription key to firebase secrets `firebase functions:secrets:set LEMON_SQUEEZY_API_KEY`
+- [ ] Setup LemonSqueezy Webhoook in Webhook/Settings 
+- [ ] Add signing key to firebase secrets `firebase functions:secrets:set LEMON_SQUEEZY_SIGNING_SECRET`
+- [ ] Add store id to firebase secrets `firebase functions:secrets:set LEMON_SQUEEZY_STORE_ID`
+- [ ] Add product variant id to firebase secrets `firebase functions:secrets:set LEMON_SQUEEZY_VARIANT_ID`
+- [ ] Add [official LemonSqueezy javascript SDK](https://github.com/lmsqueezy/lemonsqueezy.js/blob/main/README.md) to firebase functions `npm install @lemonsqueezy/lemonsqueezy.js`
+
 ## 5. Local Development connecting to Firebase Cloud
 - [ ] Start the development server using interactive terminal: `cd hosting && npm run dev`
 - [ ] Test the application at http://localhost:3000
