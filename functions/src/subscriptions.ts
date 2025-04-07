@@ -20,7 +20,7 @@ export const LEMON_SQUEEZY = {
 };
 
 export const lemonSqueezyCreateCheckout = onCall(
-  {secrets: [LEMON_SQUEEZY_API_KEY, LEMON_SQUEEZY_VARIANT_ID]},
+  {secrets: [LEMON_SQUEEZY_API_KEY, LEMON_SQUEEZY_STORE_ID, LEMON_SQUEEZY_VARIANT_ID]},
   async (request: CallableRequest) => {
     if (!request.auth) {
       throw new HttpsError(
@@ -29,10 +29,10 @@ export const lemonSqueezyCreateCheckout = onCall(
       );
     }
 
-    const userEmail = request.auth.token.email;
+    const email = request.auth.token.email;
     const userId = request.auth.uid;
 
-    if (!userEmail) {
+    if (!email) {
       throw new HttpsError(
         "failed-precondition",
         "User must have an email address."
@@ -44,7 +44,7 @@ export const lemonSqueezyCreateCheckout = onCall(
         LEMON_SQUEEZY_API_KEY.value(),
         LEMON_SQUEEZY_STORE_ID.value(),
         LEMON_SQUEEZY_VARIANT_ID.value(),
-        userEmail,
+        email,
         userId
       );
 
@@ -105,9 +105,9 @@ export const lemonSqueezyHandleWebhooks = onRequest(
   }
 );
 
-async function callCreateCheckoutApi(apiKey: string, storeId: string, variantId: string, userEmail: string, userId: string) {
+async function callCreateCheckoutApi(apiKey: string, storeId: string, variantId: string, email: string, userId: string) {
   try {
-    logger.info("Creating checkout", {userEmail, userId});
+    logger.info("Creating checkout", {email, userId});
 
     const response = await fetch(
       `${LEMON_SQUEEZY.BASE_URL}/checkouts`,
@@ -126,9 +126,10 @@ async function callCreateCheckoutApi(apiKey: string, storeId: string, variantId:
                 "embed": true,
               },
               checkout_data: {
-                userEmail,
+                email,
                 custom: {
                   user_id: userId,
+                  user_email: email,
                 },
               },
             },

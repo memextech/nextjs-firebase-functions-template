@@ -28,6 +28,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const auth = getAuth(app);
   const functions = getFunctions(app);
+  const [isSubscribed, setIsSubscribed] = useState(false);
 
   const [products, setProducts] = useState<Product[]>([]);
   const [productName, setProductName] = useState('');
@@ -36,6 +37,15 @@ export default function DashboardPage() {
   useEffect(() => {
     fetchProducts();
   }, []);
+
+  useEffect(() => {
+    // Check if user has subscription
+    if (user) {
+      user.getIdTokenResult().then((idTokenResult) => {
+        setIsSubscribed(!!idTokenResult.claims.demo_subscription);
+      });
+    }
+  }, [user]);
 
   // If user is not authenticated, redirect to signin page
   useEffect(() => {
@@ -108,8 +118,11 @@ export default function DashboardPage() {
                 SaaS Template
               </Link>
               <nav className="hidden md:flex space-x-8">
-                <a href="#" className="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
-                <a href="#" className="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">Settings</a>
+                <Link href="/dashboard" className="text-indigo-600 hover:text-indigo-800 px-3 py-2 rounded-md text-sm font-medium">Dashboard</Link>
+                <Link href="/dashboard/subscription" className="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">Subscription</Link>
+                {isSubscribed && (
+                  <Link href="/newsletter" className="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">Newsletter</Link>
+                )}
               </nav>
             </div>
             <div className="flex items-center space-x-4">

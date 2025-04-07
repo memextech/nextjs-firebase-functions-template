@@ -5,8 +5,8 @@ import { AuthProvider } from './context/AuthContext';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
-  title: 'Memex Admin',
-  description: 'Memex Admin Management Console',
+  title: 'SaaS Template',
+  description: 'SaaS Template',
 };
 
 export default function RootLayout({
