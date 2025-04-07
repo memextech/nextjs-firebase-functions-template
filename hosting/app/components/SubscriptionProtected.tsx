@@ -12,8 +12,14 @@ export function SubscriptionProtected({ children }: { children: React.ReactNode 
   useEffect(() => {
     return auth.onIdTokenChanged(async (user) => {
       if (user) {
-        const token = await user.getIdTokenResult();
-        setHasSubscription(!!token.claims.demo_subscription);
+        try {
+          // Get the latest token result without forcing refresh (already handled in AuthProvider)
+          const token = await user.getIdTokenResult();
+          setHasSubscription(!!token.claims.demo_subscription);
+        } catch (error) {
+          console.error('Error getting token claims:', error);
+          setHasSubscription(false);
+        }
       } else {
         setHasSubscription(false);
       }

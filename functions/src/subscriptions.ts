@@ -19,9 +19,13 @@ export const LEMON_SQUEEZY = {
   }),
 };
 
+interface CreateCheckoutRequest {
+  redirectUrl: string;
+}
+
 export const lemonSqueezyCreateCheckout = onCall(
   {secrets: [LEMON_SQUEEZY_API_KEY, LEMON_SQUEEZY_STORE_ID, LEMON_SQUEEZY_VARIANT_ID]},
-  async (request: CallableRequest) => {
+  async (request: CallableRequest<CreateCheckoutRequest>) => {
     if (!request.auth) {
       throw new HttpsError(
         "unauthenticated",
@@ -45,7 +49,8 @@ export const lemonSqueezyCreateCheckout = onCall(
         LEMON_SQUEEZY_STORE_ID.value(),
         LEMON_SQUEEZY_VARIANT_ID.value(),
         email,
-        userId
+        userId,
+        request.data.redirectUrl
       );
 
       logger.info("Checkout url", {checkoutUrl});
@@ -105,7 +110,7 @@ export const lemonSqueezyHandleWebhooks = onRequest(
   }
 );
 
-async function callCreateCheckoutApi(apiKey: string, storeId: string, variantId: string, email: string, userId: string) {
+async function callCreateCheckoutApi(apiKey: string, storeId: string, variantId: string, email: string, userId: string, redirectUrl: string) {
   try {
     logger.info("Creating checkout", {email, userId});
 
@@ -121,6 +126,7 @@ async function callCreateCheckoutApi(apiKey: string, storeId: string, variantId:
               custom_price: null,
               product_options: {
                 enabled_variants: [variantId],
+                redirect_url: redirectUrl,
               },
               checkout_options: {
                 "embed": true,

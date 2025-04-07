@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { getAuth, signOut } from 'firebase/auth';
 import { app } from '../../firebase';
-import { AdminProtected } from '../../components/AdminProtected';
 import Link from 'next/link';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 
@@ -50,12 +49,19 @@ export default function SubscriptionPage() {
   }, []);
 
   useEffect(() => {
-    // Check if user has subscription
-    if (user) {
-      user.getIdTokenResult().then((idTokenResult) => {
-        setIsSubscribed(!!idTokenResult.claims.demo_subscription);
-      });
-    }
+    // Check subscription status using the latest token
+    const checkSubscriptionStatus = async () => {
+      if (user) {
+        try {
+          const idTokenResult = await user.getIdTokenResult();
+          setIsSubscribed(!!idTokenResult.claims.demo_subscription);
+        } catch (error) {
+          console.error('Error checking subscription status:', error);
+        }
+      }
+    };
+    
+    checkSubscriptionStatus();
   }, [user]);
 
   // If user is not authenticated, redirect to signin page
@@ -77,8 +83,11 @@ export default function SubscriptionPage() {
   const handleSubscribe = async () => {
     try {
       setIsLoading(true);
-      const lemonSqueezyCreateCheckoutFunction = httpsCallable(functions, 'lemonSqueezyCreateCheckout');
-      const result = await lemonSqueezyCreateCheckoutFunction({});
+      // Redirect to homepage after checkout
+      const redirectUrl = typeof window !== 'undefined' ? `${window.location.origin}/` : '';
+      
+      const lemonSqueezyCreateCheckoutFunction = httpsCallable<{redirectUrl?: string}, any>(functions, 'lemonSqueezyCreateCheckout');
+      const result = await lemonSqueezyCreateCheckoutFunction({ redirectUrl });
       const { data }: any = result.data;
       
       if (data?.checkoutUrl) {
