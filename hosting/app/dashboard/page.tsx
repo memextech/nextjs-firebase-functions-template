@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { getAuth, signOut } from 'firebase/auth';
 import { app } from '../firebase';
-import { AdminProtected } from '../components/AdminProtected';
 import Link from 'next/link';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { getFirestore, collection, getDocs, Timestamp } from 'firebase/firestore';
@@ -107,8 +106,7 @@ export default function DashboardPage() {
     return null; // Will redirect via useEffect
   }
 
-  return (
-    <AdminProtected>
+  return (    
       <div className="min-h-screen bg-gray-100">
         {/* Dashboard Header */}
         <header className="bg-white shadow">
@@ -272,7 +270,5 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
-      
-    </AdminProtected>
   );
 }
